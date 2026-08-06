@@ -1,16 +1,29 @@
 class Quiz:
-    def __init__(self):
-        self.questions = [
-            "What is the capital of France?",
-            "What is 2 + 2?",
-            "What is the largest ocean on Earth?"
-        ]
-        self.current_index = 0
+    def __init__(self, question, choices, answer):
+        self.question = question
+        self.choices = choices
+        self.answer = answer
 
-    def get_next_question(self):
-        if self.current_index < len(self.questions):
-            question = self.questions[self.current_index]
-            self.current_index += 1
-            return question
-        else:
-            return None
+    def display_question(self, number):
+        print(f"Q{number}: {self.question}")
+        for i, choice in enumerate(self.choices, start=1):
+            print(f"  {i}. {choice}")
+
+    def check_answer(self, user_answer):
+        return user_answer == self.answer
+
+    def to_dict(self):
+        return {
+            "question": self.question,
+            "choices": self.choices,
+            "answer": self.answer
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            question=str(data["question"]), 
+            choices=[str(choice) for choice in data["choices"]],
+            answer=int(data["answer"])
+            )
+    

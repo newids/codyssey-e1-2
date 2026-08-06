@@ -5,7 +5,7 @@ class QuizGame:
         self.quiz = Quiz()
         self.state = {}
 
-    def menu(self):
+    def display_menu(self):
         print()
         print("=" * 40)
         print("          🎯 나만의 퀴즈 게임 🎯")
@@ -17,7 +17,7 @@ class QuizGame:
         print("        5. 종료")
         print("=" * 40)
 
-    def read_input(self, prompt, valid_range):
+    def read_int(self, prompt, valid_range):
         MESSAGE = "⚠️ 잘못된 입력입니다. {}-{} 사이의 숫자를 입력하세요."
         while True:
             user_input = input(prompt).strip()
@@ -51,13 +51,8 @@ class QuizGame:
     def run(self):
         # Main game loop
         while True:
-            self.menu()
-            choice = input(".    선택: ").strip()
-            if not choice.isdigit() or not (1 <= int(choice) <= 5):
-                print("⚠️ 잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.")
-                continue
-
-            choice = int(choice)
+            self.display_menu()
+            choice = self.read_int(".    선택: ", range(1, 6))
             if choice == 1:
                 self.play_quiz()
             elif choice == 2:
