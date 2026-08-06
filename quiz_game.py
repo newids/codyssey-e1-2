@@ -119,7 +119,11 @@ class QuizGame:
 
     def check_score(self):
         print("\n🏆 점수를 확인합니다. 🏆")
-        return
+        if self.best_score is None:
+            print("⚠️ 아직 퀴즈를 풀지 않았습니다. 최고 점수가 없습니다.")
+        else:
+            print(f"💯 최고 점수: {self.best_score}점")
+        print("-" * 40)
 
     def load_state(self):
         try:
