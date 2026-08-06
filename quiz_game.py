@@ -1,9 +1,11 @@
+from datetime import datetime
 import json
 import os
 
 from quiz import Quiz, default_quizzes
 
 STATE_FILE = "state.json"
+HISTORY_FILE = "history.json"
 class QuizGame:
     def __init__(self):
         self.quizzes = default_quizzes()
@@ -80,6 +82,7 @@ class QuizGame:
 
         total = len(self.quizzes)
         correct = 0
+        penalty = 0
 
         new_quizzes = self.quizzes.copy()
 
@@ -107,20 +110,26 @@ class QuizGame:
         
         for number, quiz in enumerate(new_quizzes, start=1):
             quiz.display_question(number)
-            user_answer = self.read_int("답을 선택하세요 (숫자): ", range(1, len(quiz.choices) + 1))
+            user_answer = self.read_int(f"힌트가 보고 싶다면 0을 선택하세요. 답을 선택하세요 (1-{len(quiz.choices)}): ", range(0, len(quiz.choices) + 1))
+            if user_answer == 0:
+                quiz.display_hint()
+                penalty += 1
+                user_answer = self.read_int(f"답을 선택하세요 (1-{len(quiz.choices)}): ", range(1, len(quiz.choices) + 1))
+            
             if quiz.check_answer(user_answer):
                 print("✅ 정답입니다!")
                 correct += 1
             else:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
             print("-" * 40)
-        score = round(correct / total * 100)
+        score = round(correct / total * 100 - penalty / total * 50)
         print("=" * 40)
-        print(f"🏆 결과: {total}문제 중 {correct}문제 정답! ({score}점)")
+        print(f"🏆 결과: {total}문제 중 {correct}문제 정답! 힌트:{penalty}개 총점:({score}점)")
+        self.save_history(how_many, correct, penalty, score)
         if self.best_score is None or score > self.best_score:
             self.best_score = score
             print("🎉 새로운 최고 점수입니다!")
-        self.save_state()
+            self.save_state()
         print("=" * 40)
 
     def add_quiz(self):
@@ -195,3 +204,18 @@ class QuizGame:
             print(f"⚠️ 데이터 저장에 실패했습니다: {e}")
             if os.path.exists(temp_file):
                 os.remove(temp_file)
+
+    def save_history(self, how_many, correct, penalty, score):
+        history = {
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "how_many": how_many,
+            "correct": correct,
+            "penalty": penalty,
+            "score": score
+        }
+
+        try:
+            with open(HISTORY_FILE, "a+", encoding="utf-8") as f:
+                json.dump(history, f, ensure_ascii=False, indent=2)
+        except (OSError, ValueError) as e:
+            print(f"⚠️ 히스토리 저장에 실패했습니다: {e}")

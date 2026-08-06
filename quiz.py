@@ -1,13 +1,20 @@
 class Quiz:
-    def __init__(self, question, choices, answer):
+    def __init__(self, question, choices, answer, hint=None):
         self.question = question
         self.choices = choices
         self.answer = answer
+        self.hint = hint
 
     def display_question(self, number):
         print(f"Q{number}: {self.question}")
         for i, choice in enumerate(self.choices, start=1):
             print(f"  {i}. {choice}")
+
+    def display_hint(self):
+        if self.hint:
+            print(f"💡 힌트: {self.hint}")
+        else:
+            print("💡 힌트가 없습니다.")
 
     def check_answer(self, user_answer):
         return user_answer == self.answer
@@ -16,7 +23,8 @@ class Quiz:
         return {
             "question": self.question,
             "choices": self.choices,
-            "answer": self.answer
+            "answer": self.answer,
+            "hint": self.hint
         }
 
     @classmethod
@@ -24,7 +32,8 @@ class Quiz:
         return cls(
             question=str(data["question"]), 
             choices=[str(choice) for choice in data["choices"]],
-            answer=int(data["answer"])
+            answer=int(data["answer"]),
+            hint=str(data.get("hint")) if data.get("hint") is not None else None
             )
 
 def default_quizzes():
@@ -32,27 +41,32 @@ def default_quizzes():
         Quiz(
             question="파이썬에서 변수명으로 사용할 수 없는 것은?",
             choices=["my_var", "_value", "2nd_user", "user_name"],
-            answer=3
+            answer=3,
+            hint="변수명은 숫자로 시작할 수 없습니다."
         ),
         Quiz(
             question="다음 중 파이썬의 기본 데이터 타입이 아닌 것은?",
             choices=["int", "string", "list", "dict"],
-            answer=2
+            answer=2,
+            hint="파이썬의 기본 데이터 타입은 int, float, bool, str, list, tuple, dict 등입니다."
         ),
         Quiz(
             question="리스트 `a = [10, 20, 30, 40]`에서 `a[1:3]`의 결과는?",
             choices=["[10, 20]", "[20, 30]", "[20, 30, 40]", "[10, 20, 30]"],
-            answer=2
+            answer=2,
+            hint="리스트 슬라이싱은 시작 인덱스부터 끝 인덱스 전까지의 요소를 반환합니다."
         ),
         Quiz(
             question="다음 연산의 결과는? `print(7 // 2)`",
             choices=["3.5", "3", "1", "3.0"],
-            answer=2
+            answer=2,
+            hint="정수 나눗셈 연산자 '//'는 소수점을 버리고 몫만 반환합니다."
         ),
         Quiz(
             question="파이썬에서 함수를 정의할 때 사용하는 키워드는?",
             choices=["func", "function", "def", "define"],
-            answer=3
+            answer=3,
+            hint="함수를 정의할 때는 'def' 키워드를 사용합니다."
         )
     ]
 
