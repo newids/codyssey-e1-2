@@ -71,3 +71,5 @@ mission-2/
 | `quizzes[].answer` | 정수(1~4) | 정답 번호 |
 | `best_score` | 정수 또는 null | 최고 점수(100점 만점). 아직 풀지 않았으면 null |
 
+---
+git clone/pull 실습을 위하여 README.md에 복제된 저장소에서 한줄 추가
