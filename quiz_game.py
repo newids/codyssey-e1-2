@@ -113,7 +113,9 @@ class QuizGame:
 
     def list_quizzes(self):
         print("\n📜 퀴즈 목록을 확인합니다. 📜")
-        return
+        for i, quiz in enumerate(self.quizzes, start=1):
+            print(f"{i}. {quiz.question}")
+        print("-" * 40)
 
     def check_score(self):
         print("\n🏆 점수를 확인합니다. 🏆")
