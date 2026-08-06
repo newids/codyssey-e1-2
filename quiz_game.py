@@ -5,19 +5,56 @@ class QuizGame:
         self.quiz = Quiz()
         self.state = {}
 
+    def menu(self):
+        print()
+        print("=" * 40)
+        print("          🎯 나만의 퀴즈 게임 🎯")
+        print("=" * 40)
+        print("        1. 퀴즈 풀기")
+        print("        2. 퀴즈 추가")
+        print("        3. 퀴즈 목록")
+        print("        4. 점수 확인")
+        print("        5. 종료")
+        print("=" * 40)
+
     def run(self):
         # Main game loop
         while True:
-            question = self.quiz.get_next_question()
-            if question is None:
-                print("No more questions available.")
+            self.menu()
+            choice = input(".    선택: ").strip()
+            if not choice.isdigit() or not (1 <= int(choice) <= 5):
+                print("⚠️ 잘못된 입력입니다. 1-5 사이의 숫자를 입력하세요.")
+                continue
+
+            choice = int(choice)
+            if choice == 1:
+                self.play_quiz()
+            elif choice == 2:
+                self.add_quiz()
+            elif choice == 3:
+                self.list_quizzes()
+            elif choice == 4:
+                self.check_score()
+            else:
+                print("👋 게임을 종료합니다.")
                 break
-            print(question)
-            answer = input("Your answer: ")
-            self.state[question] = answer
+
+    def play_quiz(self):
+        print("\n🎮 퀴즈를 시작합니다! 🎮")
+        return
+
+    def add_quiz(self):
+        print("\n➕ 새로운 퀴즈를 추가합니다. ➕")
+        return
+
+    def list_quizzes(self):
+        print("\n📜 퀴즈 목록을 확인합니다. 📜")
+        return
+
+    def check_score(self):
+        print("\n🏆 점수를 확인합니다. 🏆")
+        return
 
     def write_state(self):
-        # Write the current state to a file or database
-        with open("quiz_state.txt", "w") as f:
-            for question, answer in self.state.items():
-                f.write(f"{question}: {answer}\n")
+        print("💾 상태를 저장합니다. 💾")
+        return
