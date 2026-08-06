@@ -17,6 +17,37 @@ class QuizGame:
         print("        5. 종료")
         print("=" * 40)
 
+    def read_input(self, prompt, valid_range):
+        MESSAGE = "⚠️ 잘못된 입력입니다. {}-{} 사이의 숫자를 입력하세요."
+        while True:
+            user_input = input(prompt).strip()
+            if user_input == "":
+                print(f"⚠️ 입력이 비어있습니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+                continue
+            try:
+                value = int(user_input)
+                if value in valid_range:
+                    return value
+                else:
+                    print(f"⚠️ 잘못된 범위입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+            except ValueError:
+                print(f"⚠️ 잘못된 입력입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+
+    def read_text(self, prompt):
+        while True:
+            raw = input(prompt).strip()
+            if not raw:
+                print("⚠️ 빈 입력은 사용할 수 없습니다. 다시 입력하세요.")
+                continue
+            try:
+                # 터미널 인코딩 불일치로 들어온 대리 문자(surrogate)는
+                # UTF-8로 저장할 수 없으므로 여기서 걸러낸다.
+                raw.encode("utf-8")
+            except UnicodeEncodeError:
+                print("⚠️ 인식할 수 없는 문자가 포함되어 있습니다. 터미널 인코딩(UTF-8)을 확인하고 다시 입력하세요.")
+                continue
+            return raw
+        
     def run(self):
         # Main game loop
         while True:
