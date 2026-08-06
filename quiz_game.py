@@ -18,7 +18,8 @@ class QuizGame:
         print("        2. 퀴즈 추가")
         print("        3. 퀴즈 목록")
         print("        4. 점수 확인")
-        print("        5. 종료")
+        print("        5. 퀴즈 삭제")
+        print("        6. 종료")
         print("=" * 40)
 
     def read_int(self, prompt, valid_range):
@@ -57,7 +58,7 @@ class QuizGame:
         self.load_state()
         while True:
             self.display_menu()
-            choice = self.read_int(".    선택: ", range(1, 6))
+            choice = self.read_int(".    선택: ", range(1, 7))
             if choice == 1:
                 self.play_quiz()
             elif choice == 2:
@@ -66,6 +67,8 @@ class QuizGame:
                 self.list_quizzes()
             elif choice == 4:
                 self.check_score()
+            elif choice == 5:
+                self.delete_quiz()
             else:
                 print("👋 게임을 종료합니다.")
                 break
@@ -78,9 +81,31 @@ class QuizGame:
         total = len(self.quizzes)
         correct = 0
 
+        new_quizzes = self.quizzes.copy()
+
         print("\n🎮 퀴즈를 시작합니다! 🎮")
         print("-" * 40)
-        for number, quiz in enumerate(self.quizzes, start=1):
+
+        while True:
+            random_on_off = self.read_text("랜덤으로 문제를 섞을까요? (y/n): ").lower()
+            if random_on_off in ["y", "n"]:
+                break
+            print("⚠️ 'y' 또는 'n'을 입력하세요.")
+
+        if random_on_off == "y":
+            import random
+            random.shuffle(new_quizzes)
+
+        while True:
+            how_many = self.read_int(f"몇 문제를 풀고 싶으신가요? (1-{total}): ", range(1, total + 1))
+            if how_many <= total:
+                break
+            print(f"⚠️ 입력한 숫자가 퀴즈 개수보다 많습니다. 최대 {total}문제까지 선택 가능합니다.")
+
+        if how_many < total:
+            new_quizzes = new_quizzes[:how_many]
+        
+        for number, quiz in enumerate(new_quizzes, start=1):
             quiz.display_question(number)
             user_answer = self.read_int("답을 선택하세요 (숫자): ", range(1, len(quiz.choices) + 1))
             if quiz.check_answer(user_answer):
@@ -116,6 +141,18 @@ class QuizGame:
         for i, quiz in enumerate(self.quizzes, start=1):
             print(f"{i}. {quiz.question}")
         print("-" * 40)
+
+    def delete_quiz(self):
+        if not self.quizzes:
+            print("⚠️ 삭제할 퀴즈가 없습니다.")
+            return
+
+        self.list_quizzes()
+        print("-" * 40)
+        index = self.read_int(f"삭제할 퀴즈 번호를 입력하세요 (1-{len(self.quizzes)}): ", range(1, len(self.quizzes) + 1))
+        deleted_quiz = self.quizzes.pop(index - 1)
+        self.save_state()
+        print(f"✅ '{deleted_quiz.question}' 퀴즈가 삭제되었습니다.")
 
     def check_score(self):
         print("\n🏆 점수를 확인합니다. 🏆")
