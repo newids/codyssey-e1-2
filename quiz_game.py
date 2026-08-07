@@ -1,15 +1,18 @@
 from datetime import datetime
 import json
 import os
+import random
 
 from quiz import Quiz, default_quizzes
 
 STATE_FILE = "state.json"
 HISTORY_FILE = "history.json"
+
+
 class QuizGame:
     def __init__(self):
         self.quizzes = default_quizzes()
-        self.best_score = 0
+        self.best_score = None
 
     def display_menu(self):
         print()
@@ -29,16 +32,19 @@ class QuizGame:
         while True:
             user_input = input(prompt).strip()
             if user_input == "":
-                print(f"⚠️ 입력이 비어있습니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+                print(
+                    f"⚠️ 입력이 비어있습니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
                 continue
             try:
                 value = int(user_input)
                 if value in valid_range:
                     return value
                 else:
-                    print(f"⚠️ 잘못된 범위입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+                    print(
+                        f"⚠️ 잘못된 범위입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
             except ValueError:
-                print(f"⚠️ 잘못된 입력입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
+                print(
+                    f"⚠️ 잘못된 입력입니다. {MESSAGE.format(min(valid_range), max(valid_range))}")
 
     def read_text(self, prompt):
         while True:
@@ -54,13 +60,13 @@ class QuizGame:
                 print("⚠️ 인식할 수 없는 문자가 포함되어 있습니다. 터미널 인코딩(UTF-8)을 확인하고 다시 입력하세요.")
                 continue
             return raw
-        
+
     def run(self):
         # Main game loop
         self.load_state()
         while True:
             self.display_menu()
-            choice = self.read_int(".    선택: ", range(1, 7))
+            choice = self.read_int("     선택: ", range(1, 7))
             if choice == 1:
                 self.play_quiz()
             elif choice == 2:
@@ -96,35 +102,34 @@ class QuizGame:
             print("⚠️ 'y' 또는 'n'을 입력하세요.")
 
         if random_on_off == "y":
-            import random
             random.shuffle(new_quizzes)
 
-        while True:
-            how_many = self.read_int(f"몇 문제를 풀고 싶으신가요? (1-{total}): ", range(1, total + 1))
-            if how_many <= total:
-                break
-            print(f"⚠️ 입력한 숫자가 퀴즈 개수보다 많습니다. 최대 {total}문제까지 선택 가능합니다.")
+            how_many = self.read_int(
+                f"몇 문제를 풀고 싶으신가요? (1-{total}): ", range(1, total + 1))
 
         if how_many < total:
             new_quizzes = new_quizzes[:how_many]
-        
+
         for number, quiz in enumerate(new_quizzes, start=1):
             quiz.display_question(number)
-            user_answer = self.read_int(f"힌트가 보고 싶다면 0을 선택하세요. 답을 선택하세요 (1-{len(quiz.choices)}): ", range(0, len(quiz.choices) + 1))
+            user_answer = self.read_int(
+                f"힌트가 보고 싶다면 0을 선택하세요. 답을 선택하세요 (1-{len(quiz.choices)}): ", range(0, len(quiz.choices) + 1))
             if user_answer == 0:
                 quiz.display_hint()
                 penalty += 1
-                user_answer = self.read_int(f"답을 선택하세요 (1-{len(quiz.choices)}): ", range(1, len(quiz.choices) + 1))
-            
+                user_answer = self.read_int(
+                    f"답을 선택하세요 (1-{len(quiz.choices)}): ", range(1, len(quiz.choices) + 1))
+
             if quiz.check_answer(user_answer):
                 print("✅ 정답입니다!")
                 correct += 1
             else:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
             print("-" * 40)
-        score = round(correct / total * 100 - penalty / total * 50)
+        score = round(correct / how_many * 100 - penalty / how_many * 50)
         print("=" * 40)
-        print(f"🏆 결과: {total}문제 중 {correct}문제 정답! 힌트:{penalty}개 총점:({score}점)")
+        print(
+            f"🏆 결과: {how_many}문제 중 {correct}문제 정답! 힌트:{penalty}개 총점:({score}점)")
         self.save_history(how_many, correct, penalty, score)
         if self.best_score is None or score > self.best_score:
             self.best_score = score
@@ -134,18 +139,23 @@ class QuizGame:
 
     def add_quiz(self):
         print("\n➕ 새로운 퀴즈를 추가합니다. ➕")
-        question = self.read_text("새로운 문제을 입력하세요: ")
+        question = self.read_text("새로운 문제를 입력하세요: ")
         choices = []
         for i in range(4):
             choice = self.read_text(f"선택지 {i + 1}을 입력하세요: ")
             choices.append(choice)
         answer = self.read_int("정답 선택지 번호를 입력하세요 (1-4): ", range(1, 5))
-        new_quiz = Quiz(question, choices, answer)
+        hint = self.read_text("힌트를 입력하세요: ")
+        new_quiz = Quiz(question, choices, answer, hint)
         self.quizzes.append(new_quiz)
         self.save_state()
         print("✅ 퀴즈가 성공적으로 추가되었습니다.")
 
     def list_quizzes(self):
+        if not self.quizzes:
+            print("⚠️ 조회할 퀴즈가 없습니다.")
+            return
+
         print("\n📜 퀴즈 목록을 확인합니다. 📜")
         for i, quiz in enumerate(self.quizzes, start=1):
             print(f"{i}. {quiz.question}")
@@ -158,7 +168,8 @@ class QuizGame:
 
         self.list_quizzes()
         print("-" * 40)
-        index = self.read_int(f"삭제할 퀴즈 번호를 입력하세요 (1-{len(self.quizzes)}): ", range(1, len(self.quizzes) + 1))
+        index = self.read_int(
+            f"삭제할 퀴즈 번호를 입력하세요 (1-{len(self.quizzes)}): ", range(1, len(self.quizzes) + 1))
         deleted_quiz = self.quizzes.pop(index - 1)
         self.save_state()
         print(f"✅ '{deleted_quiz.question}' 퀴즈가 삭제되었습니다.")
@@ -206,7 +217,7 @@ class QuizGame:
                 os.remove(temp_file)
 
     def save_history(self, how_many, correct, penalty, score):
-        history = {
+        new_entry = {
             "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "how_many": how_many,
             "correct": correct,
@@ -214,8 +225,31 @@ class QuizGame:
             "score": score
         }
 
+        history_data = []
+        # 기존 히스토리 로드
         try:
             with open(HISTORY_FILE, "a+", encoding="utf-8") as f:
-                json.dump(history, f, ensure_ascii=False, indent=2)
+                json.dump(new_entry, f, ensure_ascii=False, indent=2)
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                history_data = json.load(f)
+            if not isinstance(history_data, list):  # 로드된 데이터가 리스트가 아니면 초기화
+                history_data = []
+                print("⚠️ 히스토리 파일 형식이 올바르지 않아 초기화합니다.")
+        except FileNotFoundError:
+            pass  # 파일이 없으면 빈 리스트로 시작
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"⚠️ 히스토리 파일을 읽는 중 오류 발생: {e}. 새 히스토리로 시작합니다.")
+            history_data = []
+
+        history_data.append(new_entry)
+
+        # 업데이트된 히스토리 저장 (임시 파일 사용)
+        temp_file = HISTORY_FILE + ".tmp"
+        try:
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(history_data, f, ensure_ascii=False, indent=2)
+            os.replace(temp_file, HISTORY_FILE)
         except (OSError, ValueError) as e:
             print(f"⚠️ 히스토리 저장에 실패했습니다: {e}")
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
