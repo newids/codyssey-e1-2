@@ -1,19 +1,16 @@
-{
-  "date": "2026-08-06 20:30:30",
-  "how_many": 5,
-  "correct": 2,
-  "penalty": 0,
-  "score": 40
-}{
-  "date": "2026-08-06 20:32:17",
-  "how_many": 5,
-  "correct": 3,
-  "penalty": 0,
-  "score": 60
-}{
-  "date": "2026-08-06 20:32:34",
-  "how_many": 5,
-  "correct": 2,
-  "penalty": 0,
-  "score": 40
-}
+[
+  {
+    "date": "2026-08-07 17:02:04",
+    "how_many": 5,
+    "correct": 3,
+    "penalty": 0,
+    "score": 60
+  },
+  {
+    "date": "2026-08-07 17:02:27",
+    "how_many": 5,
+    "correct": 0,
+    "penalty": 0,
+    "score": 0
+  }
+]

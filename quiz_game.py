@@ -104,8 +104,8 @@ class QuizGame:
         if random_on_off == "y":
             random.shuffle(new_quizzes)
 
-            how_many = self.read_int(
-                f"몇 문제를 풀고 싶으신가요? (1-{total}): ", range(1, total + 1))
+        how_many = self.read_int(
+            f"몇 문제를 풀고 싶으신가요? (1-{total}): ", range(1, total + 1))
 
         if how_many < total:
             new_quizzes = new_quizzes[:how_many]
@@ -127,7 +127,8 @@ class QuizGame:
                 print(f"❌ 오답입니다. 정답은 {quiz.answer}번입니다.")
             print("-" * 40)
         score = round(correct / how_many * 100 - penalty / how_many * 50)
-        print("=" * 40)
+        if score < 0:
+            score = 0
         print(
             f"🏆 결과: {how_many}문제 중 {correct}문제 정답! 힌트:{penalty}개 총점:({score}점)")
         self.save_history(how_many, correct, penalty, score)
@@ -224,27 +225,23 @@ class QuizGame:
             "penalty": penalty,
             "score": score
         }
-
-        history_data = []
-        # 기존 히스토리 로드
         try:
-            with open(HISTORY_FILE, "a+", encoding="utf-8") as f:
-                json.dump(new_entry, f, ensure_ascii=False, indent=2)
             with open(HISTORY_FILE, "r", encoding="utf-8") as f:
                 history_data = json.load(f)
-            if not isinstance(history_data, list):  # 로드된 데이터가 리스트가 아니면 초기화
-                history_data = []
+            if not isinstance(history_data, list):
                 print("⚠️ 히스토리 파일 형식이 올바르지 않아 초기화합니다.")
+                history_data = []
         except FileNotFoundError:
-            pass  # 파일이 없으면 빈 리스트로 시작
-        except (json.JSONDecodeError, OSError) as e:
-            print(f"⚠️ 히스토리 파일을 읽는 중 오류 발생: {e}. 새 히스토리로 시작합니다.")
+            history_data = []
+        except (json.JSONDecodeError, OSError):
+            print("⚠️ 히스토리 파일을 읽을 수 없어 새 히스토리로 시작합니다.")
             history_data = []
 
         history_data.append(new_entry)
 
-        # 업데이트된 히스토리 저장 (임시 파일 사용)
+        # 임시 파일에 먼저 쓴 뒤 교체해서, 저장 중 오류가 나도 기존 파일이 손상되지 않게 한다.
         temp_file = HISTORY_FILE + ".tmp"
+
         try:
             with open(temp_file, "w", encoding="utf-8") as f:
                 json.dump(history_data, f, ensure_ascii=False, indent=2)
