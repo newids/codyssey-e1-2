@@ -78,6 +78,7 @@ class QuizGame:
             elif choice == 5:
                 self.delete_quiz()
             else:
+                ## 이벤트 발생 시 모든 변경 사항이 저장되므로 종료시에는 state.json을 저장할 이유가 없다.
                 print("👋 게임을 종료합니다.")
                 break
 
